@@ -50,7 +50,7 @@ variable "dedicated_host_sku_name" {
 
   validation {
     condition     = contains(local.valid_host_skus, var.dedicated_host_sku_name)
-    error_message = "sku must be 'apple', 'banana', or 'orange'"
+    error_message = "SKU must be one of the supported values"
   }
 
 }
@@ -99,7 +99,7 @@ variable "license_type" {
 
   # check if the provided value is None, Windows_Server_Hybrid or Windows_Server_Perpetual and return an error if it is not one of these values
   validation {
-    condition     = var.license_type == "None" || var.license_type == "Windows_Server_Hybrid" || var.license_type == "Windows_Server_Perpetual"
+    condition     = contains(["None", "Windows_Server_Hybrid", "Windows_Server_Perpetual"], var.license_type)
     error_message = "The license type must be one of None, Windows_Server_Hybrid or Windows_Server_Perpetual."
   }
 }
