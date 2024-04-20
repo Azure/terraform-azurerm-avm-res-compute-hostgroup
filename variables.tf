@@ -38,28 +38,28 @@ variable "platform_fault_domain_count" {
 }
 
 # (Required) The name of the dedicated host
-variable "dedicated_host_name" {
-  type        = string
-  description = "The name of the dedicated host."
-}
+# variable "dedicated_host_name" {
+#   type        = string
+#   description = "The name of the dedicated host."
+# }
 
 # (Required) The SKU of the dedicated host
-variable "dedicated_host_sku_name" {
-  type        = string
-  description = "The SKU of the dedicated host."
+# variable "dedicated_host_sku_name" {
+#   type        = string
+#   description = "The SKU of the dedicated host."
 
-  validation {
-    condition     = contains(local.valid_host_skus, var.dedicated_host_sku_name)
-    error_message = "SKU must be one of the supported values"
-  }
+#   validation {
+#     condition     = contains(local.valid_host_skus, var.dedicated_host_sku_name)
+#     error_message = "SKU must be one of the supported values"
+#   }
 
-}
+# }
 
 # (Required) The platform fault domain of the dedicated host
-variable "platform_fault_domain" {
-  type        = number
-  description = "The platform fault domain of the dedicated host."
-}
+# variable "platform_fault_domain" {
+#   type        = number
+#   description = "The platform fault domain of the dedicated host."
+# }
 
 
 
@@ -85,21 +85,43 @@ variable "tags" {
 }
 
 # (Optional) Specifies whether the host should be replaced automatically in case of a failure
-variable "auto_replace_on_failure" {
-  type        = bool
-  description = "Whether or not the host should be replaced automatically in case of a failure."
-  default     = true
-}
+# variable "auto_replace_on_failure" {
+#   type        = bool
+#   description = "Whether or not the host should be replaced automatically in case of a failure."
+#   default     = true
+# }
 
 # (Optional) Specifies the license type for the Dedicated Host
-variable "license_type" {
-  type        = string
-  description = "The license type for the Dedicated Host."
-  default     = "None"
+# variable "license_type" {
+#   type        = string
+#   description = "The license type for the Dedicated Host."
+#   default     = "None"
 
-  # check if the provided value is None, Windows_Server_Hybrid or Windows_Server_Perpetual and return an error if it is not one of these values
+#   # check if the provided value is None, Windows_Server_Hybrid or Windows_Server_Perpetual and return an error if it is not one of these values
+#   validation {
+#     condition     = contains(["None", "Windows_Server_Hybrid", "Windows_Server_Perpetual"], var.license_type)
+#     error_message = "The license type must be one of None, Windows_Server_Hybrid or Windows_Server_Perpetual."
+#   }
+# }
+
+
+
+variable "dedicated_hosts" {
+  type = map(object({
+    name                    = string
+    sku_name                = string
+    auto_replace_on_failure = optional(bool, true)
+    platform_fault_domain   = number
+    license_type            = optional(string, "None")
+    tags                    = optional(map(string), null)
+  }))
   validation {
-    condition     = contains(["None", "Windows_Server_Hybrid", "Windows_Server_Perpetual"], var.license_type)
+    condition     = contains(["None", "Windows_Server_Hybrid", "Windows_Server_Perpetual"], var.dedicated_hosts[*].license_type)
     error_message = "The license type must be one of None, Windows_Server_Hybrid or Windows_Server_Perpetual."
   }
+  validation {
+    condition     = contains(local.valid_host_skus, var.dedicated_hosts[*].sku_name)
+    error_message = "SKU must be one of the supported values"
+  }
+  default = {}
 }
