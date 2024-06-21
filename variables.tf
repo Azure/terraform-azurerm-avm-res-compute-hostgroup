@@ -105,7 +105,7 @@ variable "tags" {
 # }
 
 
-
+/*
 variable "dedicated_hosts" {
   type = map(object({
     name                    = string
@@ -120,7 +120,31 @@ variable "dedicated_hosts" {
     error_message = "The license type must be one of None, Windows_Server_Hybrid or Windows_Server_Perpetual."
   }
   validation {
-    condition     = contains(local.valid_host_skus, var.dedicated_hosts[*].sku_name)
+    # condition     = contains(local.valid_host_skus, var.dedicated_hosts[*].sku_name)
+    condition     = contains(["DADSv5-Type1", "DASv4-Type1", "DASv4-Type2", "DASv5-Type1", "DCSv2-Type1", "DDSv4-Type1", "DDSv4-Type2", "DDSv5-Type1", "DSv3-Type1", "DSv3-Type2", "DSv3-Type3", "DSv3-Type4", "DSv4-Type1", "DSv4-Type2", "DSv5-Type1", "EADSv5-Type1", "EASv4-Type1", "EASv4-Type2", "EASv5-Type1", "EDSv4-Type1", "EDSv4-Type2", "EDSv5-Type1", "ESv3-Type1", "ESv3-Type2", "ESv3-Type3", "ESv3-Type4", "ESv4-Type1", "ESv4-Type2", "ESv5-Type1", "FSv2-Type2", "FSv2-Type3", "FSv2-Type4", "FXmds-Type1", "LSv2-Type1", "LSv3-Type1", "MDMSv2MedMem-Type1", "MDSv2MedMem-Type1", "MMSv2MedMem-Type1", "MS-Type1", "MSm-Type1", "MSmv2-Type1", "MSv2-Type1", "MSv2MedMem-Type1", "NVASv4-Type1", "NVSv3-Type1"], var.dedicated_hosts[*].sku_name)    
+    error_message = "SKU must be one of the supported values"
+  }
+  default = {}
+}
+*/
+
+variable "dedicated_hosts" {
+  type = map(object({
+    name                    = string
+    sku_name                = string
+    auto_replace_on_failure = optional(bool, true)
+    platform_fault_domain   = number
+    license_type            = optional(string, "None")
+    tags                    = optional(map(string), null)
+  }))
+  validation {
+    condition     = alltrue([for host in values(var.dedicated_hosts) : contains(["None", "Windows_Server_Hybrid", "Windows_Server_Perpetual"], host.license_type)])
+    error_message = "The license type must be one of None, Windows_Server_Hybrid or Windows_Server_Perpetual."
+  }
+  validation {
+    # condition     = contains(local.valid_host_skus, var.dedicated_hosts[*].sku_name)
+    condition = alltrue([for host in values(var.dedicated_hosts) : contains(["DADSv5-Type1", "DASv4-Type1", "DASv4-Type2", "DASv5-Type1", "DCSv2-Type1", "DDSv4-Type1", "DDSv4-Type2", "DDSv5-Type1", "DSv3-Type1", "DSv3-Type2", "DSv3-Type3", "DSv3-Type4", "DSv4-Type1", "DSv4-Type2", "DSv5-Type1", "EADSv5-Type1", "EASv4-Type1", "EASv4-Type2", "EASv5-Type1", "EDSv4-Type1", "EDSv4-Type2", "EDSv5-Type1", "ESv3-Type1", "ESv3-Type2", "ESv3-Type3", "ESv3-Type4", "ESv4-Type1", "ESv4-Type2", "ESv5-Type1", "FSv2-Type2", "FSv2-Type3", "FSv2-Type4", "FXmds-Type1", "LSv2-Type1", "LSv3-Type1", "MDMSv2MedMem-Type1", "MDSv2MedMem-Type1", "MMSv2MedMem-Type1", "MS-Type1", "MSm-Type1", "MSmv2-Type1", "MSv2-Type1", "MSv2MedMem-Type1", "NVASv4-Type1", "NVSv3-Type1"], host.sku_name)])
+    # condition     = contains(["DADSv5-Type1", "DASv4-Type1", "DASv4-Type2", "DASv5-Type1", "DCSv2-Type1", "DDSv4-Type1", "DDSv4-Type2", "DDSv5-Type1", "DSv3-Type1", "DSv3-Type2", "DSv3-Type3", "DSv3-Type4", "DSv4-Type1", "DSv4-Type2", "DSv5-Type1", "EADSv5-Type1", "EASv4-Type1", "EASv4-Type2", "EASv5-Type1", "EDSv4-Type1", "EDSv4-Type2", "EDSv5-Type1", "ESv3-Type1", "ESv3-Type2", "ESv3-Type3", "ESv3-Type4", "ESv4-Type1", "ESv4-Type2", "ESv5-Type1", "FSv2-Type2", "FSv2-Type3", "FSv2-Type4", "FXmds-Type1", "LSv2-Type1", "LSv3-Type1", "MDMSv2MedMem-Type1", "MDSv2MedMem-Type1", "MMSv2MedMem-Type1", "MS-Type1", "MSm-Type1", "MSmv2-Type1", "MSv2-Type1", "MSv2MedMem-Type1", "NVASv4-Type1", "NVSv3-Type1"], var.dedicated_hosts[*].sku_name)    
     error_message = "SKU must be one of the supported values"
   }
   default = {}
