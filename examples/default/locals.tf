@@ -1,15 +1,6 @@
 locals {
-  enable_telemetry            = true
-  resource_group_name         = "testrg"
-  location                    = "EastUS"
-  dedicated_host_group_name   = "testhg"
-  platform_fault_domain_count = 3
   automatic_placement_enabled = true
-  zone                        = "1"
-  tags = {
-    environment = "staging",
-    costcenter  = "12345"
-  }
+  dedicated_host_group_name   = "testhg"
   dedicated_hosts = {
     host1 = {
       name                    = "host1",
@@ -33,4 +24,13 @@ locals {
       }
     }
   }
+  enable_telemetry            = true
+  location                    = "EastUS"
+  platform_fault_domain_count = 3
+  resource_group_name         = "testrg"
+  tags = {
+    environment = "staging",
+    costcenter  = "12345"
+  }
+  zone = "1"
 }
