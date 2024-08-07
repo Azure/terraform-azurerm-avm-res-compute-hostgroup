@@ -27,7 +27,7 @@ locals {
     */
   }
   enable_telemetry            = true
-  location                    = "EastUS"
+  location                    = "AustraliaEast"
   platform_fault_domain_count = 3
   # resource_group_name         = "testrg"
   tags = {
