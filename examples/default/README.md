@@ -4,6 +4,7 @@
 This deploys the module in its simplest form.
 
 ```hcl
+<<<<<<< HEAD
 terraform {
   required_version = ">= 1.3.0"
   required_providers {
@@ -60,6 +61,27 @@ module "test" {
   enable_telemetry    = var.enable_telemetry # see variables.tf
   name                = "TODO"               # TODO update with module.naming.<RESOURCE_TYPE>.name_unique
   resource_group_name = azurerm_resource_group.this.name
+=======
+# This ensures we have unique CAF compliant names for our resources.
+module "naming" {
+  source  = "Azure/naming/azurerm"
+  version = "0.3.0"
+}
+
+# This is the module call
+module "test" {
+  source = "../../"
+  # source             = "Azure/avm-<res/ptn>-<name>/azurerm"
+  enable_telemetry            = local.enable_telemetry # see variables.tf
+  resource_group_name         = module.naming.resource_group.name_unique
+  location                    = local.location
+  dedicated_host_group_name   = local.dedicated_host_group_name
+  platform_fault_domain_count = local.platform_fault_domain_count
+  automatic_placement_enabled = local.automatic_placement_enabled
+  zone                        = local.zone
+  tags                        = local.tags
+  dedicated_hosts             = local.dedicated_hosts
+>>>>>>> 1932195ddd8055d006cf9e731d7fadd75869c6ad
 }
 ```
 
@@ -70,8 +92,9 @@ The following requirements are needed by this module:
 
 - <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) (>= 1.3.0)
 
-- <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (>= 3.7.0, < 4.0.0)
+- <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (>= 3.71.0)
 
+<<<<<<< HEAD
 - <a name="requirement_random"></a> [random](#requirement\_random) (>= 3.5.0, < 4.0.0)
 
 ## Resources
@@ -80,6 +103,15 @@ The following resources are used by this module:
 
 - [azurerm_resource_group.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/resource_group) (resource)
 - [random_integer.region_index](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/integer) (resource)
+=======
+## Providers
+
+No providers.
+
+## Resources
+
+No resources.
+>>>>>>> 1932195ddd8055d006cf9e731d7fadd75869c6ad
 
 <!-- markdownlint-disable MD013 -->
 ## Required Inputs
@@ -88,21 +120,27 @@ No required inputs.
 
 ## Optional Inputs
 
-The following input variables are optional (have default values):
-
-### <a name="input_enable_telemetry"></a> [enable\_telemetry](#input\_enable\_telemetry)
-
-Description: This variable controls whether or not telemetry is enabled for the module.  
-For more information see <https://aka.ms/avm/telemetryinfo>.  
-If it is set to false, then no telemetry will be collected.
-
-Type: `bool`
-
-Default: `true`
+No optional inputs.
 
 ## Outputs
 
-No outputs.
+The following outputs are exported:
+
+### <a name="output_host_ids"></a> [host\_ids](#output\_host\_ids)
+
+Description: A map of the hosts in the Dedicated Host Group to the resource IDs
+
+### <a name="output_name"></a> [name](#output\_name)
+
+Description: The name of the Dedicated Host Group
+
+### <a name="output_resource"></a> [resource](#output\_resource)
+
+Description: All atrributes of the Dedicated Host group
+
+### <a name="output_resource_id"></a> [resource\_id](#output\_resource\_id)
+
+Description: The resource ID of the Dedicated Host Group
 
 ## Modules
 
@@ -112,6 +150,7 @@ The following Modules are called:
 
 Source: Azure/naming/azurerm
 
+<<<<<<< HEAD
 Version: >= 0.3.0
 
 ### <a name="module_regions"></a> [regions](#module\_regions)
@@ -119,6 +158,9 @@ Version: >= 0.3.0
 Source: Azure/regions/azurerm
 
 Version: >= 0.3.0
+=======
+Version: 0.3.0
+>>>>>>> 1932195ddd8055d006cf9e731d7fadd75869c6ad
 
 ### <a name="module_test"></a> [test](#module\_test)
 

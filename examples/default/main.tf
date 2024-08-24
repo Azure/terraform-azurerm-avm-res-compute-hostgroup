@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 terraform {
   required_version = ">= 1.3.0"
   required_providers {
@@ -41,17 +42,32 @@ module "naming" {
 resource "azurerm_resource_group" "this" {
   location = module.regions.regions[random_integer.region_index.result].name
   name     = module.naming.resource_group.name_unique
+=======
+# This ensures we have unique CAF compliant names for our resources.
+module "naming" {
+  source  = "Azure/naming/azurerm"
+  version = "0.3.0"
+>>>>>>> 1932195ddd8055d006cf9e731d7fadd75869c6ad
 }
 
 # This is the module call
-# Do not specify location here due to the randomization above.
-# Leaving location as `null` will cause the module to use the resource group location
-# with a data source.
 module "test" {
   source = "../../"
   # source             = "Azure/avm-<res/ptn>-<name>/azurerm"
+<<<<<<< HEAD
   # ...
   enable_telemetry    = var.enable_telemetry # see variables.tf
   name                = "TODO"               # TODO update with module.naming.<RESOURCE_TYPE>.name_unique
   resource_group_name = azurerm_resource_group.this.name
+=======
+  enable_telemetry            = local.enable_telemetry # see variables.tf
+  resource_group_name         = module.naming.resource_group.name_unique
+  location                    = local.location
+  dedicated_host_group_name   = local.dedicated_host_group_name
+  platform_fault_domain_count = local.platform_fault_domain_count
+  automatic_placement_enabled = local.automatic_placement_enabled
+  zone                        = local.zone
+  tags                        = local.tags
+  dedicated_hosts             = local.dedicated_hosts
+>>>>>>> 1932195ddd8055d006cf9e731d7fadd75869c6ad
 }
