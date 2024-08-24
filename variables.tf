@@ -1,3 +1,65 @@
+# (Required) Specifies the name of the Dedicated Host Group
+variable "dedicated_host_group_name" {
+  type        = string
+  description = "The name of the dedicated host."
+}
+
+# (Required) The Azure location where the Dedicated Host Group exists.
+variable "location" {
+  type        = string
+  description = "The location where the dedicated host group will be created."
+  nullable    = false
+}
+
+# (Required) The number of fault domains that the Dedicated Host Group spans
+variable "platform_fault_domain_count" {
+  type        = number
+  description = "The number of fault domains that the host group can span."
+
+  validation {
+    condition     = var.platform_fault_domain_count <= 5 && var.platform_fault_domain_count >= 1
+    error_message = "The platform fault domain count must be between 1 and 5."
+  }
+}
+
+# (Required) Specifies the name of the resource group the Dedicated Host Group is located in
+variable "resource_group_name" {
+  type        = string
+  description = "The resource group where dedicated host group will be deployed."
+}
+
+# (Optional) Would virtual machines or virtual machine scale sets be placed automatically on this Dedicated Host Group?
+variable "automatic_placement_enabled" {
+  type        = bool
+  default     = true
+  description = "Whether or not automatic placement is enabled for the host group."
+}
+
+# (Optional) A map of the hosts and their specifications in the Dedicated Host Group
+variable "dedicated_hosts" {
+  type = map(object({
+    name                    = string
+    sku_name                = string
+    auto_replace_on_failure = optional(bool, true)
+    platform_fault_domain   = number
+    license_type            = optional(string, "None")
+    tags                    = optional(map(string), null)
+  }))
+  default     = {}
+  description = "(Optional) A map of the hosts and their specifications in the Dedicated Host Group"
+
+  validation {
+    condition     = alltrue([for host in values(var.dedicated_hosts) : contains(["None", "Windows_Server_Hybrid", "Windows_Server_Perpetual"], host.license_type)])
+    error_message = "The license type must be one of None, Windows_Server_Hybrid or Windows_Server_Perpetual."
+  }
+  validation {
+    # condition     = contains(local.valid_host_skus, var.dedicated_hosts[*].sku_name)
+    condition = alltrue([for host in values(var.dedicated_hosts) : contains(["DADSv5-Type1", "DASv4-Type1", "DASv4-Type2", "DASv5-Type1", "DCSv2-Type1", "DDSv4-Type1", "DDSv4-Type2", "DDSv5-Type1", "DSv3-Type1", "DSv3-Type2", "DSv3-Type3", "DSv3-Type4", "DSv4-Type1", "DSv4-Type2", "DSv5-Type1", "EADSv5-Type1", "EASv4-Type1", "EASv4-Type2", "EASv5-Type1", "EDSv4-Type1", "EDSv4-Type2", "EDSv5-Type1", "ESv3-Type1", "ESv3-Type2", "ESv3-Type3", "ESv3-Type4", "ESv4-Type1", "ESv4-Type2", "ESv5-Type1", "FSv2-Type2", "FSv2-Type3", "FSv2-Type4", "FXmds-Type1", "LSv2-Type1", "LSv3-Type1", "MDMSv2MedMem-Type1", "MDSv2MedMem-Type1", "MMSv2MedMem-Type1", "MS-Type1", "MSm-Type1", "MSmv2-Type1", "MSv2-Type1", "MSv2MedMem-Type1", "NVASv4-Type1", "NVSv3-Type1"], host.sku_name)])
+    # condition     = contains(["DADSv5-Type1", "DASv4-Type1", "DASv4-Type2", "DASv5-Type1", "DCSv2-Type1", "DDSv4-Type1", "DDSv4-Type2", "DDSv5-Type1", "DSv3-Type1", "DSv3-Type2", "DSv3-Type3", "DSv3-Type4", "DSv4-Type1", "DSv4-Type2", "DSv5-Type1", "EADSv5-Type1", "EASv4-Type1", "EASv4-Type2", "EASv5-Type1", "EDSv4-Type1", "EDSv4-Type2", "EDSv5-Type1", "ESv3-Type1", "ESv3-Type2", "ESv3-Type3", "ESv3-Type4", "ESv4-Type1", "ESv4-Type2", "ESv5-Type1", "FSv2-Type2", "FSv2-Type3", "FSv2-Type4", "FXmds-Type1", "LSv2-Type1", "LSv3-Type1", "MDMSv2MedMem-Type1", "MDSv2MedMem-Type1", "MMSv2MedMem-Type1", "MS-Type1", "MSm-Type1", "MSmv2-Type1", "MSv2-Type1", "MSv2MedMem-Type1", "NVASv4-Type1", "NVSv3-Type1"], var.dedicated_hosts[*].sku_name)    
+    error_message = "SKU must be one of the supported values"
+  }
+}
+
 variable "enable_telemetry" {
   type        = bool
   default     = true
@@ -8,193 +70,16 @@ If it is set to false, then no telemetry will be collected.
 DESCRIPTION
 }
 
-# This is required for most resource modules
-variable "resource_group_name" {
-  type        = string
-  description = "The resource group where the resources will be deployed."
-}
-
-variable "location" {
-  type        = string
-  description = "Azure region where the resource should be deployed.  If null, the location will be inferred from the resource group location."
-  default     = null
-}
-
-variable "name" {
-  type        = string
-  description = "The name of the this resource."
-  validation {
-    condition     = can(regex("TODO", var.name))
-    error_message = "The name must be TODO." # TODO remove the example below once complete:
-    #condition     = can(regex("^[a-z0-9]{5,50}$", var.name))
-    #error_message = "The name must be between 5 and 50 characters long and can only contain lowercase letters and numbers."
-  }
-}
-
-# required AVM interfaces
-# remove only if not supported by the resource
-# tflint-ignore: terraform_unused_declarations
-variable "customer_managed_key" {
-  type = object({
-    key_vault_resource_id              = optional(string)
-    key_name                           = optional(string)
-    key_version                        = optional(string, null)
-    user_assigned_identity_resource_id = optional(string, null)
-  })
-  description = "Customer managed keys that should be associated with the resource."
-  default     = {}
-}
-
-variable "diagnostic_settings" {
-  type = map(object({
-    name                                     = optional(string, null)
-    log_categories                           = optional(set(string), [])
-    log_groups                               = optional(set(string), ["allLogs"])
-    metric_categories                        = optional(set(string), ["AllMetrics"])
-    log_analytics_destination_type           = optional(string, "Dedicated")
-    workspace_resource_id                    = optional(string, null)
-    storage_account_resource_id              = optional(string, null)
-    event_hub_authorization_rule_resource_id = optional(string, null)
-    event_hub_name                           = optional(string, null)
-    marketplace_partner_resource_id          = optional(string, null)
-  }))
-  default  = {}
-  nullable = false
-
-  validation {
-    condition     = alltrue([for _, v in var.diagnostic_settings : contains(["Dedicated", "AzureDiagnostics"], v.log_analytics_destination_type)])
-    error_message = "Log analytics destination type must be one of: 'Dedicated', 'AzureDiagnostics'."
-  }
-  validation {
-    condition = alltrue(
-      [
-        for _, v in var.diagnostic_settings :
-        v.workspace_resource_id != null || v.storage_account_resource_id != null || v.event_hub_authorization_rule_resource_id != null || v.marketplace_partner_resource_id != null
-      ]
-    )
-    error_message = "At least one of `workspace_resource_id`, `storage_account_resource_id`, `marketplace_partner_resource_id`, or `event_hub_authorization_rule_resource_id`, must be set."
-  }
-  description = <<DESCRIPTION
-A map of diagnostic settings to create on the Key Vault. The map key is deliberately arbitrary to avoid issues where map keys maybe unknown at plan time.
-
-- `name` - (Optional) The name of the diagnostic setting. One will be generated if not set, however this will not be unique if you want to create multiple diagnostic setting resources.
-- `log_categories` - (Optional) A set of log categories to send to the log analytics workspace. Defaults to `[]`.
-- `log_groups` - (Optional) A set of log groups to send to the log analytics workspace. Defaults to `["allLogs"]`.
-- `metric_categories` - (Optional) A set of metric categories to send to the log analytics workspace. Defaults to `["AllMetrics"]`.
-- `log_analytics_destination_type` - (Optional) The destination type for the diagnostic setting. Possible values are `Dedicated` and `AzureDiagnostics`. Defaults to `Dedicated`.
-- `workspace_resource_id` - (Optional) The resource ID of the log analytics workspace to send logs and metrics to.
-- `storage_account_resource_id` - (Optional) The resource ID of the storage account to send logs and metrics to.
-- `event_hub_authorization_rule_resource_id` - (Optional) The resource ID of the event hub authorization rule to send logs and metrics to.
-- `event_hub_name` - (Optional) The name of the event hub. If none is specified, the default event hub will be selected.
-- `marketplace_partner_resource_id` - (Optional) The full ARM resource ID of the Marketplace resource to which you would like to send Diagnostic LogsLogs.
-DESCRIPTION
-}
-
-variable "lock" {
-  type = object({
-    name = optional(string, null)
-    kind = optional(string, "None")
-  })
-  description = "The lock level to apply. Default is `None`. Possible values are `None`, `CanNotDelete`, and `ReadOnly`."
-  default     = {}
-  nullable    = false
-  validation {
-    condition     = contains(["CanNotDelete", "ReadOnly", "None"], var.lock.kind)
-    error_message = "The lock level must be one of: 'None', 'CanNotDelete', or 'ReadOnly'."
-  }
-}
-
-# tflint-ignore: terraform_unused_declarations
-variable "managed_identities" {
-  type = object({
-    system_assigned            = optional(bool, false)
-    user_assigned_resource_ids = optional(set(string), [])
-  })
-  description = "Managed identities to be created for the resource."
-  default     = {}
-}
-
-variable "private_endpoints" {
-  type = map(object({
-    name = optional(string, null)
-    role_assignments = optional(map(object({
-      role_definition_id_or_name             = string
-      principal_id                           = string
-      description                            = optional(string, null)
-      skip_service_principal_aad_check       = optional(bool, false)
-      condition                              = optional(string, null)
-      condition_version                      = optional(string, null)
-      delegated_managed_identity_resource_id = optional(string, null)
-    })), {})
-    lock = optional(object({
-      name = optional(string, null)
-      kind = optional(string, "None")
-    }), {})
-    tags                                    = optional(map(any), null)
-    subnet_resource_id                      = string
-    private_dns_zone_group_name             = optional(string, "default")
-    private_dns_zone_resource_ids           = optional(set(string), [])
-    application_security_group_associations = optional(map(string), {})
-    private_service_connection_name         = optional(string, null)
-    network_interface_name                  = optional(string, null)
-    location                                = optional(string, null)
-    resource_group_name                     = optional(string, null)
-    ip_configurations = optional(map(object({
-      name               = string
-      private_ip_address = string
-    })), {})
-  }))
-  default     = {}
-  description = <<DESCRIPTION
-A map of private endpoints to create on this resource. The map key is deliberately arbitrary to avoid issues where map keys maybe unknown at plan time.
-
-- `name` - (Optional) The name of the private endpoint. One will be generated if not set.
-- `role_assignments` - (Optional) A map of role assignments to create on the private endpoint. The map key is deliberately arbitrary to avoid issues where map keys maybe unknown at plan time. See `var.role_assignments` for more information.
-- `lock` - (Optional) The lock level to apply to the private endpoint. Default is `None`. Possible values are `None`, `CanNotDelete`, and `ReadOnly`.
-- `tags` - (Optional) A mapping of tags to assign to the private endpoint.
-- `subnet_resource_id` - The resource ID of the subnet to deploy the private endpoint in.
-- `private_dns_zone_group_name` - (Optional) The name of the private DNS zone group. One will be generated if not set.
-- `private_dns_zone_resource_ids` - (Optional) A set of resource IDs of private DNS zones to associate with the private endpoint. If not set, no zone groups will be created and the private endpoint will not be associated with any private DNS zones. DNS records must be managed external to this module.
-- `application_security_group_resource_ids` - (Optional) A map of resource IDs of application security groups to associate with the private endpoint. The map key is deliberately arbitrary to avoid issues where map keys maybe unknown at plan time.
-- `private_service_connection_name` - (Optional) The name of the private service connection. One will be generated if not set.
-- `network_interface_name` - (Optional) The name of the network interface. One will be generated if not set.
-- `location` - (Optional) The Azure location where the resources will be deployed. Defaults to the location of the resource group.
-- `resource_group_name` - (Optional) The resource group where the resources will be deployed. Defaults to the resource group of this resource.
-- `ip_configurations` - (Optional) A map of IP configurations to create on the private endpoint. If not specified the platform will create one. The map key is deliberately arbitrary to avoid issues where map keys maybe unknown at plan time.
-  - `name` - The name of the IP configuration.
-  - `private_ip_address` - The private IP address of the IP configuration.
-DESCRIPTION
-}
-
-variable "role_assignments" {
-  type = map(object({
-    role_definition_id_or_name             = string
-    principal_id                           = string
-    description                            = optional(string, null)
-    skip_service_principal_aad_check       = optional(bool, false)
-    condition                              = optional(string, null)
-    condition_version                      = optional(string, null)
-    delegated_managed_identity_resource_id = optional(string, null)
-  }))
-  default     = {}
-  description = <<DESCRIPTION
-A map of role assignments to create on this resource. The map key is deliberately arbitrary to avoid issues where map keys maybe unknown at plan time.
-
-- `role_definition_id_or_name` - The ID or name of the role definition to assign to the principal.
-- `principal_id` - The ID of the principal to assign the role to.
-- `description` - The description of the role assignment.
-- `skip_service_principal_aad_check` - If set to true, skips the Azure Active Directory check for the service principal in the tenant. Defaults to false.
-- `condition` - The condition which will be used to scope the role assignment.
-- `condition_version` - The version of the condition syntax. Valid values are '2.0'.
-
-> Note: only set `skip_service_principal_aad_check` to true if you are assigning a role to a service principal.
-DESCRIPTION
-}
-
-# tflint-ignore: terraform_unused_declarations
+# (Optional) A mapping of tags to assign to the resource
 variable "tags" {
-  type        = map(any)
-  description = "The map of tags to be applied to the resource"
-  default     = {}
+  type        = map(string)
+  default     = null
+  description = "(Optional) Tags of the resource"
 }
 
+# (Optional) Specifies the Availability Zone in which this Dedicated Host Group should be located
+variable "zone" {
+  type        = string
+  default     = null
+  description = "The Availability Zone for the Dedicated Host Group."
+}
