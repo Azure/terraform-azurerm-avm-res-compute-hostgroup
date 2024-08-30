@@ -1,7 +1,23 @@
 <!-- BEGIN_TF_DOCS -->
 # terraform-azurerm-avm-res-compute-hostgroup
 
-This is a template repo to deploy dedicated host groups in Azure.
+This is an AVM module to deploy dedicated host groups in Azure.
+
+To use this module in your Terraform configuration, you'll need to provide values for the required variables. Here's a basic example:
+
+```
+module "azure_computehostgroup" {
+  source = "./path_to_this_module"
+
+  // ... mandatory variables ...
+  dedicated_host_group_name = "dedicated_host_groupname"
+  resource_group_name = "resource_group_name"
+  location = "location"
+  platform_fault_domain_count = 5 //acceptable values between 1 and 5
+
+  // ... other optional variables, see example ...
+}
+```
 
 > [!IMPORTANT]
 > As the overall AVM framework is not GA (generally available) yet - the CI framework and test automation is not fully functional and implemented across all supported languages yet - breaking changes are expected, and additional customer feedback is yet to be gathered and incorporated. Hence, modules **MUST NOT** be published at version `1.0.0` or higher at this time.
