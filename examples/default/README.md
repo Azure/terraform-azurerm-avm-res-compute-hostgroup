@@ -13,16 +13,17 @@ module "naming" {
 # This is the module call
 module "test" {
   source = "../../"
-  # source             = "Azure/avm-<res/ptn>-<name>/azurerm"
-  enable_telemetry            = local.enable_telemetry # see variables.tf
-  resource_group_name         = module.naming.resource_group.name_unique
-  location                    = local.location
+
   dedicated_host_group_name   = local.dedicated_host_group_name
+  location                    = local.location
   platform_fault_domain_count = local.platform_fault_domain_count
+  resource_group_name         = module.naming.resource_group.name_unique
   automatic_placement_enabled = local.automatic_placement_enabled
-  zone                        = local.zone
-  tags                        = local.tags
   dedicated_hosts             = local.dedicated_hosts
+  # source             = "Azure/avm-<res/ptn>-<name>/azurerm"
+  enable_telemetry = local.enable_telemetry # see variables.tf
+  tags             = local.tags
+  zone             = local.zone
 }
 ```
 
