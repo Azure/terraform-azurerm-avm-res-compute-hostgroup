@@ -4,7 +4,7 @@ locals {
   dedicated_hosts = {
     host1 = {
       name                    = "host1",
-      sku_name                = "DCSv2-Type1",
+      sku_name                = "DSv4-Type1",
       platform_fault_domain   = 0,
       auto_replace_on_failure = true,
       license_type            = "Windows_Server_Hybrid",
