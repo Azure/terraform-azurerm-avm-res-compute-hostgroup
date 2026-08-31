@@ -8,7 +8,7 @@ This deploys the module in its simplest form.
 # This ensures we have unique CAF compliant names for our resources.
 module "naming" {
   source  = "Azure/naming/azurerm"
-  version = "0.3.0"
+  version = "0.4.3"
 }
 
 # This is the module call
@@ -35,7 +35,7 @@ The following requirements are needed by this module:
 
 - <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) (>= 1.9, < 2.0)
 
-- <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (>= 4.0, < 5.0)
+- <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (>= 4.0, < 5.4)
 
 ## Resources
 
@@ -78,7 +78,7 @@ The following Modules are called:
 
 Source: Azure/naming/azurerm
 
-Version: 0.3.0
+Version: 0.4.3
 
 ### <a name="module_test"></a> [test](#module\_test)
 
