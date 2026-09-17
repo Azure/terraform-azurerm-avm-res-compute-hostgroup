@@ -22,7 +22,7 @@ module "test" {
   automatic_placement_enabled = local.automatic_placement_enabled
   dedicated_hosts             = local.dedicated_hosts
   # source             = "Azure/avm-<res/ptn>-<name>/azurerm"
-  enable_telemetry = local.enable_telemetry # see variables.tf
+  enable_telemetry = false # see variables.tf
   tags             = local.tags
   zone             = local.zone
 }
