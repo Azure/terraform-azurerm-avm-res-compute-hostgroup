@@ -1,0 +1,10 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Azure/azure-verified-modules-tools/main/src/Avm.Authoring/Resources/Schemas/v1/avm-module-metadata.schema.json",
+  "moduleDisplayName": "Host Groups",
+  "moduleDescription": "AVM Resource Module for Host Groups",
+  "canonicalType": "Microsoft.Compute/hostGroups",
+  "owners": [
+    "WenAI2020"
+  ],
+  "telemetryIdPrefix": "46d3xtrf.res.aa8815b"
+}
