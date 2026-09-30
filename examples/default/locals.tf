@@ -13,18 +13,16 @@ locals {
         costcenter  = "12345"
       }
     },
-    /*
-    host2 = {
-      name                    = "host2",
-      sku_name                = "DDSv4-Type1",
-      platform_fault_domain   = 1,
-      auto_replace_on_failure = true,
-      tags = {
-        environment = "staging",
-        costcenter  = "12345"
-      }
-    }
-    */
+    # host2 = {
+    #   name                    = "host2",
+    #   sku_name                = "DDSv4-Type1",
+    #   platform_fault_domain   = 1,
+    #   auto_replace_on_failure = true,
+    #   tags = {
+    #     environment = "staging",
+    #     costcenter  = "12345"
+    #   }
+    # }
   }
   enable_telemetry            = true
   location                    = "EastUS2"
